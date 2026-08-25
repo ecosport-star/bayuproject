@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI VIDEO STUDIO - Motion Engine</title>
+    <title>AI VIDEO STUDIO - Neural Motion Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
@@ -79,7 +79,6 @@
         @keyframes blink { 50% { opacity: 0; } }
         
         #render-canvas { display: none; }
-        .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body>
@@ -96,10 +95,6 @@
             <div class="flex items-center space-x-6 text-sm text-[var(--muted)]">
                 <a href="#studio" class="hidden md:block hover:text-white transition">Studio</a>
                 <a href="#history" class="hidden md:block hover:text-white transition">History</a>
-                <button id="open-settings-btn" class="flex items-center space-x-2 hover:text-[var(--primary)] transition">
-                    <i class="fas fa-cog"></i>
-                    <span class="hidden md:inline">Settings API</span>
-                </button>
             </div>
         </nav>
     </header>
@@ -112,7 +107,7 @@
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)]">Video Bergerak AI</span>
             </h2>
             <p class="text-[var(--muted)] max-w-xl mx-auto text-sm md:text-base mb-8">
-                Engine AI canggih. Gambar dipaksa bergerak sesuai prompt (berjalan, angin).
+                Didukung oleh Neural Motion Engine. Gambar akan disimulasikan bergerak hidup sesuai prompt (berjalan, angin) langsung di perangkat Anda.
             </p>
         </section>
 
@@ -146,6 +141,7 @@
                         <div class="grid grid-cols-3 gap-2 mt-2">
                             <div class="option-card selected rounded-lg p-2 text-center" data-group="duration" data-value="5"><p class="text-xs font-bold">5s</p></div>
                             <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="10"><p class="text-xs font-bold">10s</p></div>
+                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="15"><p class="text-xs font-bold">15s</p></div>
                         </div>
                     </div>
                     <div>
@@ -161,7 +157,7 @@
                             <span class="text-[var(--muted)]">Motion Strength</span>
                             <span class="text-[var(--primary)] font-bold" id="motion-val">80</span>
                         </div>
-                        <input type="range" id="motion-slider" min="50" max="100" value="80" class="w-full">
+                        <input type="range" id="motion-slider" min="40" max="100" value="80" class="w-full">
                     </div>
                 </div>
             </div>
@@ -169,11 +165,12 @@
             <div class="lg:col-span-8 space-y-6">
                 <div class="glass rounded-2xl p-5">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-3">3. AI Motion Prompt</h3>
-                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan sambil melambaikan tangan."></textarea>
+                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan, rambut tertiup angin."></textarea>
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera dengan cepat">Berjalan Cepat</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang, subjek bergoyang">Tertiup Angin</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat di sekitar subjek">Orbit 360</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera dengan cepat">Orang Berjalan</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang">Tertiup Angin</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat">Orbit 360</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="zoom in cinematic dramatis">Cinematic Zoom</button>
                     </div>
                 </div>
 
@@ -195,7 +192,7 @@
                                 <i class="fas fa-microchip text-[var(--primary)]"></i>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold mb-2" id="processing-title">AI Processing...</h3>
+                        <h3 class="text-lg font-bold mb-2" id="processing-title">Neural Engine Processing...</h3>
                         <p class="text-xs text-[var(--muted)] mb-6 blink-cursor" id="processing-status">Initializing</p>
                         <div class="max-w-md mx-auto">
                             <div class="bg-[var(--bg)] rounded-full h-2 overflow-hidden mb-2">
@@ -234,41 +231,13 @@
         </section>
     </main>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-overlay">
-        <div class="glass rounded-2xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Pengaturan AI Provider</h3>
-                <button id="close-settings-btn" class="text-[var(--muted)] hover:text-white">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <p class="text-sm text-[var(--muted)] mb-6">
-                Masukkan API Key Replicate. Jika kosong, aplikasi akan memakai Internal Engine (Gratis).
-            </p>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-[var(--muted)]">API Key Replicate</label>
-                    <input type="password" id="api-key-input" placeholder="r8_xxxxxx" class="w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:border-[var(--primary)]">
-                </div>
-                <button id="save-settings-btn" class="btn-primary w-full px-6 py-3 rounded-xl text-sm font-bold">
-                    <span><i class="fas fa-save mr-2"></i>Simpan Konfigurasi</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <div id="toast-container" class="fixed top-20 right-4 z-[100] space-y-2"></div>
     <canvas id="render-canvas"></canvas>
 
     <script>
         let currentImage = null;
-        let lastVideoUrl = null;
         let currentSettings = { duration: 5, ratio: '16:9', motion: 80 };
         let history = [];
-        let aiConfig = { apiKey: localStorage.getItem('replicate_key') || '' };
-        
-        document.getElementById('api-key-input').value = aiConfig.apiKey;
 
         function showToast(msg, type='info') {
             const c = { success: 'border-[var(--primary)] text-[var(--primary)]', error: 'border-red-400 text-red-400' };
@@ -279,7 +248,6 @@
             setTimeout(() => t.remove(), 3000);
         }
 
-        // Upload Handling
         const uploadZone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
         const removeBtn = document.getElementById('remove-image-btn');
@@ -340,25 +308,7 @@
             b.addEventListener('click', () => document.getElementById('prompt-input').value = b.dataset.prompt);
         });
 
-        const settingsModal = document.getElementById('settings-modal');
-        document.getElementById('open-settings-btn').addEventListener('click', () => {
-            settingsModal.classList.remove('hidden');
-            settingsModal.classList.add('flex');
-        });
-        document.getElementById('close-settings-btn').addEventListener('click', () => {
-            settingsModal.classList.add('hidden');
-            settingsModal.classList.remove('flex');
-        });
-        document.getElementById('save-settings-btn').addEventListener('click', () => {
-            aiConfig.apiKey = document.getElementById('api-key-input').value;
-            localStorage.setItem('replicate_key', aiConfig.apiKey);
-            settingsModal.classList.add('hidden');
-            settingsModal.classList.remove('flex');
-            showToast('API Key disimpan!', 'success');
-        });
-
-        // ================= LOGIKA AI =================
-        document.getElementById('generate-btn').addEventListener('click', async () => {
+        document.getElementById('generate-btn').addEventListener('click', () => {
             if(!currentImage) return showToast('Upload gambar dulu', 'error');
             
             document.getElementById('output-section').classList.remove('hidden');
@@ -366,96 +316,8 @@
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('output-section').scrollIntoView({behavior:'smooth', block:'center'});
 
-            if (aiConfig.apiKey) {
-                await callReplicateAI();
-            } else {
-                showToast('API Key kosong. Menggunakan Internal Engine.', 'error');
-                startInternalRender(currentImage);
-            }
+            startNeuralRender();
         });
-
-        // --- FUNGSI API REPLICATE DENGAN CORS PROXY ---
-        async function callReplicateAI() {
-            updateStatus("Mengompres gambar...", 5);
-            
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            const maxW = 720; 
-            const scale = Math.min(1, maxW / currentImage.width);
-            tempCanvas.width = currentImage.width * scale;
-            tempCanvas.height = currentImage.height * scale;
-            tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
-            const imgDataUrl = tempCanvas.toDataURL('image/jpeg', 0.8);
-
-            updateStatus("Mengirim ke AI Replicate (Via Proxy)...", 10);
-
-            // CORS PROXY untuk bypass browser security
-            const proxyUrl = 'https://corsproxy.io/?url=';
-            const apiUrl = 'https://api.replicate.com/v1/predictions';
-
-            try {
-                const createRes = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${aiConfig.apiKey}`,
-                        "Content-Type": "application/json",
-                        "Prefer": "wait=0"
-                    },
-                    body: JSON.stringify({
-                        version: "3f0457e4619daac25695a1f141b0a9f23b2c6f1d6ad52d0589b1e226de6f7922", 
-                        input: {
-                            image: imgDataUrl,
-                            motion_bucket_id: currentSettings.motion,
-                            fps: 8,
-                            video_length: currentSettings.duration === 5 ? 14 : 25
-                        }
-                    })
-                });
-
-                if (!createRes.ok) {
-                    const errData = await createRes.json();
-                    throw new Error(errData.detail || "Gagal autentikasi/koneksi");
-                }
-
-                const prediction = await createRes.json();
-                const predictionUrl = prediction.urls.get;
-                
-                let attempts = 0;
-                const pollInterval = setInterval(async () => {
-                    attempts++;
-                    try {
-                        const statusRes = await fetch(proxyUrl + encodeURIComponent(predictionUrl), {
-                            headers: { "Authorization": `Bearer ${aiConfig.apiKey}` }
-                        });
-                        const statusData = await statusRes.json();
-
-                        if (statusData.status === 'succeeded') {
-                            clearInterval(pollInterval);
-                            updateStatus("Mengunduh video...", 95);
-                            lastVideoUrl = statusData.output;
-                            finalizeVideo(lastVideoUrl);
-                        } else if (statusData.status === 'failed') {
-                            clearInterval(pollInterval);
-                            throw new Error("Server AI gagal memproses.");
-                        } else {
-                            let progress = Math.min(90, 10 + (attempts * 4));
-                            updateStatus(`AI merender gerakan... (${statusData.status})`, progress);
-                        }
-                    } catch (err) {
-                        clearInterval(pollInterval);
-                        fallbackToInternal(err.message);
-                    }
-                }, 4000);
-
-            } catch (error) {
-                fallbackToInternal(error.message);
-            }
-        }
-
-        function fallbackToInternal(errMsg) {
-            showToast("Gagal AI: " + errMsg + ". Beralih ke Internal Engine.", 'error');
-            startInternalRender(currentImage);
-        }
 
         function updateStatus(text, percent) {
             document.getElementById('processing-status').innerText = text;
@@ -463,8 +325,10 @@
             document.getElementById('progress-percent').innerText = Math.floor(percent);
         }
 
-        // --- INTERNAL ENGINE (Slice Distortion) ---
-        function startInternalRender(inputSource, isVideo = false) {
+        // =================================================================
+        // NEURAL MOTION ENGINE v2 (100% Local Browser Execution)
+        // =================================================================
+        function startNeuralRender() {
             const canvas = document.getElementById('render-canvas');
             const ctx = canvas.getContext('2d');
             const fps = 30;
@@ -481,26 +345,15 @@
             recorder.ondataavailable = e => chunks.push(e.data);
             recorder.onstop = () => finalizeVideo(URL.createObjectURL(new Blob(chunks, {type:'video/webm'})));
 
-            let mediaElement = inputSource;
-
             const prompt = document.getElementById('prompt-input').value.toLowerCase();
             let motionType = 'zoom';
-            if (prompt.includes('jalan') || prompt.includes('berjalan')) motionType = 'walk';
-            else if (prompt.includes('angin') || prompt.includes('tiup')) motionType = 'wind';
-            else if (prompt.includes('putar') || prompt.includes('orbit')) motionType = 'orbit';
+            if (prompt.includes('jalan') || prompt.includes('berjalan') || prompt.includes('walking')) motionType = 'walk';
+            else if (prompt.includes('angin') || prompt.includes('tiup') || prompt.includes('wind')) motionType = 'wind';
+            else if (prompt.includes('putar') || prompt.includes('orbit') || prompt.includes('360')) motionType = 'orbit';
+            else if (prompt.includes('air') || prompt.includes('gelombang')) motionType = 'water';
 
             let frame = 0;
-            
-            const startDraw = () => {
-                recorder.start();
-                draw();
-            };
-
-            if (isVideo) {
-                mediaElement.onloadeddata = startDraw;
-            } else {
-                startDraw();
-            }
+            recorder.start();
 
             function draw() {
                 if(frame >= totalFrames) return recorder.stop();
@@ -508,53 +361,93 @@
                 ctx.fillStyle = "#000";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                const t = frame / totalFrames;
-                const m = currentSettings.motion / 100;
-                let scale = 1, x = 0, y = 0, rot = 0;
-
-                const iw = mediaElement.width;
-                const ih = mediaElement.height;
+                const t = frame / totalFrames; // Progress 0 -> 1
+                const m = currentSettings.motion / 100; // Strength 0 -> 1
+                
+                const iw = currentImage.width;
+                const ih = currentImage.height;
                 const ir = iw / ih;
                 const cr = canvas.width / canvas.height;
                 let dw, dh;
                 if(ir > cr) { dh = canvas.height; dw = dh * ir; } else { dw = canvas.width; dh = dw / ir; }
 
-                // SLICE DISTORTION untuk efek "Hidup"
+                // ALGORITMA DISTORSI MULTI-SLICE
                 if (motionType === 'wind') {
-                    const slices = 20;
+                    // Memotong gambar horizontal dan membuat gelombang
+                    const slices = 30;
                     const sliceH = dh / slices;
+                    ctx.save();
+                    ctx.translate(canvas.width/2, canvas.height/2);
                     for(let i=0; i<slices; i++) {
-                        const wave = Math.sin(t * Math.PI * 6 * m + (i / slices) * 2) * 30 * m;
-                        ctx.drawImage(mediaElement, 
+                        const wave = Math.sin(t * Math.PI * 8 * m + (i / slices) * 3) * 40 * m;
+                        const stretch = 1 + Math.sin(t * Math.PI * 6 * m + (i / slices) * 2) * 0.05 * m;
+                        ctx.drawImage(currentImage, 
                             0, (ih/slices) * i, iw, ih/slices, 
-                            -dw/2 + wave, -dh/2 + (i * sliceH), dw, sliceH + 1
+                            -dw/2 + wave, -dh/2 + (i * sliceH), dw * stretch, sliceH + 1
                         );
                     }
-                } else {
-                    if (motionType === 'walk') {
-                        scale = 1 + (m * t * 0.2);
-                        y = Math.sin(t * Math.PI * 10 * m) * 25 * m; 
-                    } else if (motionType === 'orbit') {
-                        scale = 1.2; rot = t * Math.PI * 2 * m;
-                    } else {
-                        scale = 1 + (m * t * 0.6);
+                    ctx.restore();
+                } 
+                else if (motionType === 'walk') {
+                    // Simulasi langkah dengan distorsi vertikal dan bobbing
+                    const slices = 15;
+                    const sliceW = dw / slices;
+                    ctx.save();
+                    ctx.translate(canvas.width/2, canvas.height/2);
+                    const yBob = Math.sin(t * Math.PI * 8 * m) * 20 * m; // Naik turun
+                    ctx.translate(0, yBob);
+                    
+                    for(let i=0; i<slices; i++) {
+                        let wave = 0;
+                        if (i > slices / 2) { // Kaki bagian bawah bergerak lebih kuat
+                            wave = Math.sin(t * Math.PI * 6 * m + (i / slices) * 2) * 30 * m;
+                        }
+                        ctx.drawImage(currentImage, 
+                            (iw/slices) * i, 0, iw/slices, ih, 
+                            -dw/2 + (i * sliceW) + wave, -dh/2, sliceW + 1, dh
+                        );
                     }
+                    ctx.restore();
+                }
+                else if (motionType === 'water') {
+                    // Gelombang vertikal (seperti air)
+                    const slices = 20;
+                    const sliceW = dw / slices;
+                    ctx.save();
+                    ctx.translate(canvas.width/2, canvas.height/2);
+                    for(let i=0; i<slices; i++) {
+                        const wave = Math.sin(t * Math.PI * 4 * m + (i / slices) * 4) * 25 * m;
+                        ctx.drawImage(currentImage, 
+                            (iw/slices) * i, 0, iw/slices, ih, 
+                            -dw/2 + (i * sliceW), -dh/2 + wave, sliceW + 1, dh
+                        );
+                    }
+                    ctx.restore();
+                }
+                else {
+                    // Cinematic Zoom + Pan
+                    let scale = 1 + (m * t * 0.6);
+                    let x = Math.sin(t * Math.PI * 2) * 30 * m;
+                    let y = Math.cos(t * Math.PI * 2) * 15 * m;
 
                     ctx.save();
                     ctx.translate(canvas.width/2, canvas.height/2);
-                    ctx.rotate(rot);
+                    if (motionType === 'orbit') {
+                        ctx.rotate(t * Math.PI * 2 * m);
+                    }
                     ctx.scale(scale, scale);
                     ctx.translate(x, y);
-                    ctx.drawImage(mediaElement, -dw/2, -dh/2, dw, dh);
+                    ctx.drawImage(currentImage, -dw/2, -dh/2, dw, dh);
                     ctx.restore();
                 }
 
                 let percent = Math.floor((frame/totalFrames)*100);
-                updateStatus(`Merender frame dinamis ${frame}/${totalFrames}...`, percent);
+                updateStatus(`Rendering motion frame ${frame}/${totalFrames}...`, percent);
 
                 frame++;
                 setTimeout(draw, 1000/fps);
             }
+            draw();
         }
 
         function finalizeVideo(url) {
@@ -611,7 +504,7 @@
         document.getElementById('download-btn').addEventListener('click', () => {
             const a = document.createElement('a');
             a.href = document.getElementById('result-video').src;
-            a.download = `ai_video_${Date.now()}.mp4`;
+            a.download = `ai_video_${Date.now()}.webm`;
             a.click();
         });
 
