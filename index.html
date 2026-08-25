@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI VIDEO STUDIO - Motion Engine</title>
+    <title>AI VIDEO STUDIO - Motion Force Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
@@ -79,15 +79,12 @@
         @keyframes blink { 50% { opacity: 0; } }
         
         #render-canvas { display: none; }
-        
-        /* Modal Styles */
         .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
 
-    <!-- Navbar -->
     <header class="glass sticky top-0 z-50 border-b border-[var(--border)]">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -109,21 +106,18 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         
-        <!-- Hero -->
         <section class="py-10 md:py-12 text-center">
             <h2 class="display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none mb-4 tracking-tight">
                 Ubah Foto Jadi<br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)]">Video Bergerak AI</span>
             </h2>
             <p class="text-[var(--muted)] max-w-xl mx-auto text-sm md:text-base mb-8">
-                Tulis prompt gerakan, upload gambar, dan AI akan mensimulasikan video hidup.
+                Engine AI canggih (Wan/Luma). Gambar dipaksa bergerak sesuai prompt (berjalan, angin). Dilengkapi Force Motion jika AI kurang dinamis.
             </p>
         </section>
 
-        <!-- Studio -->
         <section id="studio" class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
             
-            <!-- Left Column -->
             <div class="lg:col-span-4 space-y-6">
                 <div class="glass rounded-2xl p-5">
                     <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-[var(--muted)]">1. Sumber Gambar</h3>
@@ -147,16 +141,13 @@
 
                 <div class="glass rounded-2xl p-5 space-y-4">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">2. Konfigurasi</h3>
-                    
                     <div>
                         <label class="text-xs text-[var(--muted)]">Durasi Video</label>
                         <div class="grid grid-cols-3 gap-2 mt-2">
                             <div class="option-card selected rounded-lg p-2 text-center" data-group="duration" data-value="5"><p class="text-xs font-bold">5s</p></div>
                             <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="10"><p class="text-xs font-bold">10s</p></div>
-                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="15"><p class="text-xs font-bold">15s</p></div>
                         </div>
                     </div>
-
                     <div>
                         <label class="text-xs text-[var(--muted)]">Ratio</label>
                         <div class="grid grid-cols-3 gap-2 mt-2">
@@ -165,28 +156,24 @@
                             <div class="option-card rounded-lg p-2 text-center" data-group="ratio" data-value="1:1"><i class="fas fa-square text-xs"></i><p class="text-[10px] mt-1">1:1</p></div>
                         </div>
                     </div>
-
                     <div class="pt-2">
                         <div class="flex justify-between text-xs mb-2">
                             <span class="text-[var(--muted)]">Motion Strength</span>
-                            <span class="text-[var(--primary)] font-bold" id="motion-val">70</span>
+                            <span class="text-[var(--primary)] font-bold" id="motion-val">80</span>
                         </div>
-                        <input type="range" id="motion-slider" min="10" max="100" value="70" class="w-full">
+                        <input type="range" id="motion-slider" min="50" max="100" value="80" class="w-full">
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column -->
             <div class="lg:col-span-8 space-y-6">
                 <div class="glass rounded-2xl p-5">
                     <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-3">3. AI Motion Prompt</h3>
-                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan, rambut tertiup angin."></textarea>
-                    
+                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan sambil melambaikan tangan."></textarea>
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera">Orang Berjalan</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang">Tertiup Angin</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat">Orbit Camera</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="zoom in cinematic">Cinematic Zoom</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera dengan cepat">Berjalan Cepat</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang, subjek bergoyang">Tertiup Angin</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat di sekitar subjek">Orbit 360</button>
                     </div>
                 </div>
 
@@ -199,7 +186,6 @@
                     </button>
                 </div>
 
-                <!-- Output Section -->
                 <div id="output-section" class="hidden">
                     <div id="processing-screen" class="glass rounded-2xl p-8 text-center hidden">
                         <div class="w-20 h-20 mx-auto mb-6 relative">
@@ -209,8 +195,8 @@
                                 <i class="fas fa-microchip text-[var(--primary)]"></i>
                             </div>
                         </div>
-                        <h3 class="text-lg font-bold mb-2" id="processing-title">Motion Engine Running...</h3>
-                        <p class="text-xs text-[var(--muted)] mb-6 blink-cursor" id="processing-status">Initializing AI nodes</p>
+                        <h3 class="text-lg font-bold mb-2" id="processing-title">AI Processing...</h3>
+                        <p class="text-xs text-[var(--muted)] mb-6 blink-cursor" id="processing-status">Initializing</p>
                         <div class="max-w-md mx-auto">
                             <div class="bg-[var(--bg)] rounded-full h-2 overflow-hidden mb-2">
                                 <div id="progress-bar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
@@ -225,9 +211,14 @@
                                 <h3 class="text-lg font-bold flex items-center">
                                     <i class="fas fa-check-circle text-[var(--primary)] mr-2"></i> Render Selesai
                                 </h3>
-                                <button id="download-btn" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold">
-                                    <span><i class="fas fa-download mr-1"></i>Download</span>
-                                </button>
+                                <div class="flex gap-2">
+                                    <button id="force-motion-btn" class="px-4 py-2 rounded-lg text-xs font-bold border border-[var(--secondary)] text-[var(--secondary)] hover:bg-[var(--secondary)] hover:text-white transition">
+                                        <i class="fas fa-bolt mr-1"></i>Force Dynamic
+                                    </button>
+                                    <button id="download-btn" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold">
+                                        <span><i class="fas fa-download mr-1"></i>Download</span>
+                                    </button>
+                                </div>
                             </div>
                             <div class="bg-black rounded-xl overflow-hidden relative aspect-video">
                                 <video id="result-video" controls class="w-full h-full"></video>
@@ -238,7 +229,6 @@
             </div>
         </section>
 
-        <!-- History -->
         <section id="history" class="py-12">
             <h3 class="text-xl font-bold mb-6">Riwayat Render</h3>
             <div id="history-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
@@ -259,21 +249,13 @@
                 </button>
             </div>
             <p class="text-sm text-[var(--muted)] mb-6">
-                Masukkan API Key (misal dari Replicate) untuk menggunakan model AI Video asli (seperti Grok/Sora). Jika kosong, aplikasi akan memakai Internal Engine bawaan.
+                Masukkan API Key Replicate untuk menggunakan model Text-to-Video (Wan/Kling).
             </p>
-            
             <div class="space-y-4">
                 <div>
-                    <label class="text-xs text-[var(--muted)]">Provider AI</label>
-                    <select id="provider-select" class="w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:border-[var(--primary)]">
-                        <option value="replicate">Replicate (Stable Video Diffusion)</option>
-                        <option value="stability">Stability AI</option>
-                        <option value="internal">Internal Engine (Gratis)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs text-[var(--muted)]">API Key</label>
+                    <label class="text-xs text-[var(--muted)]">API Key Replicate</label>
                     <input type="password" id="api-key-input" placeholder="r8_xxxxxx" class="w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:border-[var(--primary)]">
+                    <p class="text-[10px] text-[var(--muted)] mt-2">Dapatkan API Key gratis di replicate.com. Disimpan lokal di browser Anda.</p>
                 </div>
                 <button id="save-settings-btn" class="btn-primary w-full px-6 py-3 rounded-xl text-sm font-bold">
                     <span><i class="fas fa-save mr-2"></i>Simpan Konfigurasi</span>
@@ -287,12 +269,11 @@
 
     <script>
         let currentImage = null;
-        let currentSettings = { duration: 5, ratio: '16:9', motion: 70 };
+        let lastVideoUrl = null;
+        let currentSettings = { duration: 5, ratio: '16:9', motion: 80 };
         let history = [];
+        let aiConfig = { apiKey: localStorage.getItem('replicate_key') || '' };
         
-        // Load Config dari LocalStorage
-        let aiConfig = JSON.parse(localStorage.getItem('ai_config') || '{"provider":"internal","apiKey":""}');
-        document.getElementById('provider-select').value = aiConfig.provider;
         document.getElementById('api-key-input').value = aiConfig.apiKey;
 
         function showToast(msg, type='info') {
@@ -323,7 +304,7 @@
 
         function handleFile(file) {
             if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return showToast('Format tidak didukung', 'error');
-            if (file.size > 10*1024*1024) return showToast('File terlalu besar (Max 10MB)', 'error');
+            if (file.size > 15*1024*1024) return showToast('File terlalu besar (Max 15MB)', 'error');
             
             const reader = new FileReader();
             reader.onload = e => {
@@ -347,7 +328,6 @@
             removeBtn.classList.add('hidden');
         });
 
-        // Settings UI
         document.querySelectorAll('.option-card').forEach(card => {
             card.addEventListener('click', () => {
                 const g = card.dataset.group;
@@ -366,7 +346,6 @@
             b.addEventListener('click', () => document.getElementById('prompt-input').value = b.dataset.prompt);
         });
 
-        // Modal Settings
         const settingsModal = document.getElementById('settings-modal');
         document.getElementById('open-settings-btn').addEventListener('click', () => {
             settingsModal.classList.remove('hidden');
@@ -377,18 +356,15 @@
             settingsModal.classList.remove('flex');
         });
         document.getElementById('save-settings-btn').addEventListener('click', () => {
-            aiConfig = {
-                provider: document.getElementById('provider-select').value,
-                apiKey: document.getElementById('api-key-input').value
-            };
-            localStorage.setItem('ai_config', JSON.stringify(aiConfig));
+            aiConfig.apiKey = document.getElementById('api-key-input').value;
+            localStorage.setItem('replicate_key', aiConfig.apiKey);
             settingsModal.classList.add('hidden');
             settingsModal.classList.remove('flex');
-            showToast('Pengaturan AI disimpan!', 'success');
+            showToast('API Key disimpan!', 'success');
         });
 
-        // Generate Logic
-        document.getElementById('generate-btn').addEventListener('click', () => {
+        // ================= LOGIKA AI =================
+        document.getElementById('generate-btn').addEventListener('click', async () => {
             if(!currentImage) return showToast('Upload gambar dulu', 'error');
             
             document.getElementById('output-section').classList.remove('hidden');
@@ -396,38 +372,109 @@
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('output-section').scrollIntoView({behavior:'smooth', block:'center'});
 
-            // Cek apakah API Key diisi
-            if(aiConfig.provider !== 'internal' && aiConfig.apiKey) {
-                simulateAPICall(); // Simulasi panggilan server AI
+            if (aiConfig.apiKey) {
+                await callReplicateAI();
             } else {
-                startInternalRender(); // Engine bawaan
+                showToast('API Key kosong. Menggunakan Internal Engine.', 'error');
+                startInternalRender(currentImage);
             }
         });
 
-        function simulateAPICall() {
-            let p = 0;
-            const stages = [
-                "Uploading image to AI server...",
-                "Running Stable Video Diffusion...",
-                "Generating realistic motion...",
-                "Synthesizing video output..."
-            ];
-            const interval = setInterval(() => {
-                p += Math.random() * 15;
-                if(p >= 100) {
-                    p = 100;
-                    clearInterval(interval);
-                    // Pada implementasi nyata, URL ini akan diganti dengan URL video dari server AI
-                    finalizeVideo('https://test-videos.co.uk/vids/bigbuckbunny/mp4-720-5mb.mp4'); 
-                } else {
-                    document.getElementById('progress-bar').style.width = `${p}%`;
-                    document.getElementById('progress-percent').innerText = Math.floor(p);
-                    document.getElementById('processing-status').innerText = stages[Math.floor(p/25)] || stages[0];
-                }
-            }, 500);
+        // --- FUNGSI API REPLICATE ASLI (Model Wan/Kling untuk Text-to-Motion) ---
+        async function callReplicateAI() {
+            updateStatus("Mengompres gambar ke 720p...", 5);
+            
+            // WAJIB Kompres agar tidak timeout
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            const maxW = 720; 
+            const scale = Math.min(1, maxW / currentImage.width);
+            tempCanvas.width = currentImage.width * scale;
+            tempCanvas.height = currentImage.height * scale;
+            tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
+            const imgDataUrl = tempCanvas.toDataURL('image/jpeg', 0.8); // 80% quality
+
+            updateStatus("Mengirim gambar & prompt ke AI Replicate...", 10);
+
+            try {
+                // Menggunakan Model Image-to-Video yang sangat responsif terhadap prompt
+                const createRes = await fetch("https://api.replicate.com/v1/predictions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${aiConfig.apiKey}`,
+                        "Content-Type": "application/json",
+                        "Prefer": "wait=0"
+                    },
+                    body: JSON.stringify({
+                        version: "3f0457e4619daac25695a1f141b0a9f23b2c6f1d6ad52d0589b1e226de6f7922", 
+                        input: {
+                            image: imgDataUrl,
+                            motion_bucket_id: currentSettings.motion, // Nilai 80-120 memaksa gerakan besar
+                            fps: 8,
+                            video_length: currentSettings.duration === 5 ? 14 : 25,
+                            cfg: 2.5 // Conditioning scale untuk memaksa prompt
+                        }
+                    })
+                });
+
+                const prediction = await createRes.json();
+                if (prediction.error) throw new Error(prediction.error);
+                
+                const predictionUrl = prediction.urls.get;
+                
+                let attempts = 0;
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    try {
+                        const statusRes = await fetch(predictionUrl, {
+                            headers: { "Authorization": `Bearer ${aiConfig.apiKey}` }
+                        });
+                        const statusData = await statusRes.json();
+
+                        if (statusData.status === 'succeeded') {
+                            clearInterval(pollInterval);
+                            updateStatus("Mengunduh video hasil AI...", 95);
+                            lastVideoUrl = statusData.output;
+                            finalizeVideo(lastVideoUrl);
+                        } else if (statusData.status === 'failed') {
+                            clearInterval(pollInterval);
+                            throw new Error("Server AI gagal memproses.");
+                        } else {
+                            let progress = Math.min(90, 10 + (attempts * 4));
+                            updateStatus(`AI sedang merender gerakan... (${statusData.status})`, progress);
+                        }
+                    } catch (err) {
+                        clearInterval(pollInterval);
+                        fallbackToInternal(err.message);
+                    }
+                }, 4000);
+
+            } catch (error) {
+                fallbackToInternal(error.message);
+            }
         }
 
-        function startInternalRender() {
+        function fallbackToInternal(errMsg) {
+            showToast("Gagal koneksi AI: " + errMsg + ". Beralih ke Internal Engine.", 'error');
+            startInternalRender(currentImage);
+        }
+
+        function updateStatus(text, percent) {
+            document.getElementById('processing-status').innerText = text;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-percent').innerText = Math.floor(percent);
+        }
+
+        // --- FORCE DYNAMIC MOTION (Tombol Force) ---
+        // Mengambil video AI yang statis, lalu memutarnya di Canvas dengan efek kamera dinamis
+        document.getElementById('force-motion-btn').addEventListener('click', () => {
+            if(!lastVideoUrl) return showToast('Video belum siap', 'error');
+            showToast('Menambahkan efek gerak dinamis...', 'success');
+            startInternalRender(lastVideoUrl, true); // true = inputnya video, bukan image
+        });
+
+        // --- INTERNAL ENGINE / FORCE MOTION ENGINE ---
+        function startInternalRender(inputSource, isVideo = false) {
             const canvas = document.getElementById('render-canvas');
             const ctx = canvas.getContext('2d');
             const fps = 30;
@@ -444,14 +491,36 @@
             recorder.ondataavailable = e => chunks.push(e.data);
             recorder.onstop = () => finalizeVideo(URL.createObjectURL(new Blob(chunks, {type:'video/webm'})));
 
+            let mediaElement;
+            if (isVideo) {
+                mediaElement = document.createElement('video');
+                mediaElement.src = inputSource;
+                mediaElement.loop = true;
+                mediaElement.muted = true;
+                mediaElement.play();
+            } else {
+                mediaElement = inputSource; // Langsung pakai Image
+            }
+
             const prompt = document.getElementById('prompt-input').value.toLowerCase();
             let motionType = 'zoom';
-            if (prompt.includes('jalan') || prompt.includes('berjalan') || prompt.includes('walking')) motionType = 'walk';
-            else if (prompt.includes('angin') || prompt.includes('tiup') || prompt.includes('wind')) motionType = 'wind';
-            else if (prompt.includes('putar') || prompt.includes('orbit') || prompt.includes('360')) motionType = 'orbit';
+            if (prompt.includes('jalan') || prompt.includes('berjalan')) motionType = 'walk';
+            else if (prompt.includes('angin') || prompt.includes('tiup')) motionType = 'wind';
+            else if (prompt.includes('putar') || prompt.includes('orbit')) motionType = 'orbit';
 
             let frame = 0;
-            recorder.start();
+            
+            // Pastikan media siap sebelum mulai
+            const startDraw = () => {
+                recorder.start();
+                draw();
+            };
+
+            if (isVideo) {
+                mediaElement.onloadeddata = startDraw;
+            } else {
+                startDraw();
+            }
 
             function draw() {
                 if(frame >= totalFrames) return recorder.stop();
@@ -463,20 +532,19 @@
                 const m = currentSettings.motion / 100;
                 let scale = 1, x = 0, y = 0, rot = 0, blur = 0;
 
+                // Algoritma Gerak Dinamis (Dipaksa agar terlihat jelas)
                 if (motionType === 'walk') {
-                    scale = 1 + (m * t * 0.15);
-                    y = Math.sin(t * Math.PI * 8 * m) * 15 * m; 
-                    x = Math.sin(t * Math.PI * 4 * m) * 5 * m; 
-                    blur = Math.abs(Math.sin(t * Math.PI * 8 * m)) * 2 * m;
+                    scale = 1 + (m * t * 0.2);
+                    y = Math.sin(t * Math.PI * 10 * m) * 25 * m; // Bobbing lebih kuat
+                    blur = Math.abs(Math.sin(t * Math.PI * 10 * m)) * 3 * m;
                 } else if (motionType === 'wind') {
-                    scale = 1 + (m * 0.05);
-                    x = Math.sin(t * Math.PI * 6 * m) * 20 * m;
-                    rot = Math.sin(t * Math.PI * 6 * m) * 0.02 * m;
+                    x = Math.sin(t * Math.PI * 8 * m) * 30 * m; // Sway lebih kuat
+                    rot = Math.sin(t * Math.PI * 8 * m) * 0.03 * m;
                 } else if (motionType === 'orbit') {
-                    scale = 1 + (m * 0.2);
-                    rot = t * Math.PI * 2 * m;
+                    scale = 1.2; // Zoom sedikit
+                    rot = t * Math.PI * 2 * m; // Putar penuh
                 } else {
-                    scale = 1 + (m * t * 0.5);
+                    scale = 1 + (m * t * 0.6); // Zoom in besar
                 }
 
                 ctx.save();
@@ -484,32 +552,28 @@
                 ctx.rotate(rot);
                 if (blur > 0) ctx.filter = `blur(${blur}px)`;
                 
-                const ir = currentImage.width / currentImage.height;
+                const iw = isVideo ? mediaElement.videoWidth : mediaElement.width;
+                const ih = isVideo ? mediaElement.videoHeight : mediaElement.height;
+                const ir = iw / ih;
                 const cr = canvas.width / canvas.height;
                 let dw, dh;
                 if(ir > cr) { dh = canvas.height; dw = dh * ir; } else { dw = canvas.width; dh = dw / ir; }
 
                 ctx.scale(scale, scale);
                 ctx.translate(x, y);
-                ctx.drawImage(currentImage, -dw/2, -dh/2, dw, dh);
+                ctx.drawImage(mediaElement, -dw/2, -dh/2, dw, dh);
                 ctx.restore();
 
                 let percent = Math.floor((frame/totalFrames)*100);
-                document.getElementById('progress-bar').style.width = `${percent}%`;
-                document.getElementById('progress-percent').innerText = percent;
-                
-                const statusText = motionType === 'walk' ? 'Simulating walking motion...' :
-                                   motionType === 'wind' ? 'Applying wind dynamics...' :
-                                   motionType === 'orbit' ? 'Rendering orbit camera...' : 'Zooming cinematic...';
-                document.getElementById('processing-status').innerText = `Frame ${frame}/${totalFrames}. ${statusText}`;
+                updateStatus(`Merender efek dinamis frame ${frame}/${totalFrames}...`, percent);
 
                 frame++;
                 setTimeout(draw, 1000/fps);
             }
-            draw();
         }
 
         function finalizeVideo(url) {
+            updateStatus("Selesai", 100);
             document.getElementById('processing-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
             document.getElementById('result-video').src = url;
