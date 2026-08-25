@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI VIDEO STUDIO - Motion Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #050508;
+            --card: #0F0F14;
+            --border: #1F1F28;
+            --primary: #00F5D4;
+            --secondary: #9B5DE5;
+            --accent: #F15BB5;
+            --text: #FFFFFF;
+            --muted: #6B6B75;
+        }
+        * { font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        h1, h2, h3, .display { font-family: 'Syne', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+        
+        .glass { background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border); }
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;
+            background: radial-gradient(circle at 10% 10%, rgba(0, 245, 212, 0.05), transparent 40%),
+                        radial-gradient(circle at 90% 90%, rgba(155, 93, 229, 0.05), transparent 40%);
+        }
+        
+        .upload-wrapper { position: relative; }
+        .upload-zone { transition: all 0.3s ease; border: 2px dashed var(--border); background: var(--card); border-radius: 16px; }
+        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 245, 212, 0.02); }
+        .upload-zone.dragging { border-color: var(--primary); background: rgba(0, 245, 212, 0.05); }
+        .remove-btn { position: absolute; top: 12px; right: 12px; z-index: 10; background: rgba(255,0,0,0.7); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        
+        input[type="range"] { -webkit-appearance: none; appearance: none; height: 4px; background: var(--border); border-radius: 4px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+            background: var(--primary); border-radius: 50%; cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #050508; font-weight: 700; transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            transform: translateX(-100%); transition: transform 0.3s ease; z-index: 0;
+        }
+        .btn-primary:hover::before { transform: translateX(0%); }
+        .btn-primary span { position: relative; z-index: 1; }
+        
+        .progress-bar { background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); background-size: 200% 100%; animation: gradient 2s linear infinite; }
+        @keyframes gradient { 0% { background-position: 0% 0%; } 100% { background-position: -200% 0%; } }
+        
+        .option-card { cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--border); background: var(--card); }
+        .option-card:hover { border-color: var(--primary); }
+        .option-card.selected { border-color: var(--primary); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.1); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        
+        .spin-slow { animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 245, 212, 0.3); } 50% { box-shadow: 0 0 40px rgba(0, 245, 212, 0.6); } }
+        
+        .toast { animation: slideIn 0.3s ease-out, slideOut 0.3s ease-out 2.7s forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { to { transform: translateX(100%); opacity: 0; } }
+        
+        .blink-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: var(--primary); }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        #render-canvas { display: none; }
+        
+        /* Modal Styles */
+        .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <!-- Navbar -->
+    <header class="glass sticky top-0 z-50 border-b border-[var(--border)]">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
+                    <i class="fas fa-bolt text-[var(--bg)] text-sm"></i>
+                </div>
+                <h1 class="display text-lg font-bold tracking-wider">NEURA<span class="text-[var(--primary)]">AI</span></h1>
+            </div>
+            <div class="flex items-center space-x-6 text-sm text-[var(--muted)]">
+                <a href="#studio" class="hidden md:block hover:text-white transition">Studio</a>
+                <a href="#history" class="hidden md:block hover:text-white transition">History</a>
+                <button id="open-settings-btn" class="flex items-center space-x-2 hover:text-[var(--primary)] transition">
+                    <i class="fas fa-cog"></i>
+                    <span class="hidden md:inline">Settings API</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        
+        <!-- Hero -->
+        <section class="py-10 md:py-12 text-center">
+            <h2 class="display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none mb-4 tracking-tight">
+                Ubah Foto Jadi<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)]">Video Bergerak AI</span>
+            </h2>
+            <p class="text-[var(--muted)] max-w-xl mx-auto text-sm md:text-base mb-8">
+                Tulis prompt gerakan, upload gambar, dan AI akan mensimulasikan video hidup.
+            </p>
+        </section>
+
+        <!-- Studio -->
+        <section id="studio" class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
+            
+            <!-- Left Column -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass rounded-2xl p-5">
+                    <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-[var(--muted)]">1. Sumber Gambar</h3>
+                    <div class="upload-wrapper">
+                        <button id="remove-image-btn" class="remove-btn hidden text-xs text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div id="upload-zone" class="upload-zone p-6 text-center cursor-pointer">
+                            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" class="hidden">
+                            <div id="upload-placeholder">
+                                <i class="fas fa-cloud-arrow-up text-2xl text-[var(--primary)] mb-2 block"></i>
+                                <p class="text-sm font-medium">Klik atau Drag & Drop</p>
+                                <p class="text-xs text-[var(--muted)] mt-1">JPG, PNG, WEBP</p>
+                            </div>
+                            <div id="image-preview-container" class="hidden">
+                                <img id="image-preview" src="" alt="Preview" class="max-h-48 mx-auto rounded-lg object-contain">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass rounded-2xl p-5 space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">2. Konfigurasi</h3>
+                    
+                    <div>
+                        <label class="text-xs text-[var(--muted)]">Durasi Video</label>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <div class="option-card selected rounded-lg p-2 text-center" data-group="duration" data-value="5"><p class="text-xs font-bold">5s</p></div>
+                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="10"><p class="text-xs font-bold">10s</p></div>
+                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="15"><p class="text-xs font-bold">15s</p></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-[var(--muted)]">Ratio</label>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <div class="option-card selected rounded-lg p-2 text-center" data-group="ratio" data-value="16:9"><i class="fas fa-tv text-xs"></i><p class="text-[10px] mt-1">16:9</p></div>
+                            <div class="option-card rounded-lg p-2 text-center" data-group="ratio" data-value="9:16"><i class="fas fa-mobile-screen text-xs"></i><p class="text-[10px] mt-1">9:16</p></div>
+                            <div class="option-card rounded-lg p-2 text-center" data-group="ratio" data-value="1:1"><i class="fas fa-square text-xs"></i><p class="text-[10px] mt-1">1:1</p></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-[var(--muted)]">Motion Strength</span>
+                            <span class="text-[var(--primary)] font-bold" id="motion-val">70</span>
+                        </div>
+                        <input type="range" id="motion-slider" min="10" max="100" value="70" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="glass rounded-2xl p-5">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-3">3. AI Motion Prompt</h3>
+                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan, rambut tertiup angin."></textarea>
+                    
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera">Orang Berjalan</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang">Tertiup Angin</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat">Orbit Camera</button>
+                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="zoom in cinematic">Cinematic Zoom</button>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button id="generate-btn" class="btn-primary flex-1 px-8 py-4 rounded-xl text-sm font-bold uppercase tracking-widest pulse-glow">
+                        <span><i class="fas fa-play mr-2"></i>Generate Motion Video</span>
+                    </button>
+                    <button id="reset-btn" class="px-6 py-4 rounded-xl text-sm font-bold border border-[var(--border)] hover:border-red-400 hover:text-red-400 transition">
+                        <i class="fas fa-rotate-left"></i>
+                    </button>
+                </div>
+
+                <!-- Output Section -->
+                <div id="output-section" class="hidden">
+                    <div id="processing-screen" class="glass rounded-2xl p-8 text-center hidden">
+                        <div class="w-20 h-20 mx-auto mb-6 relative">
+                            <div class="absolute inset-0 rounded-full border-4 border-[var(--border)]"></div>
+                            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-[var(--primary)] spin-slow"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-microchip text-[var(--primary)]"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2" id="processing-title">Motion Engine Running...</h3>
+                        <p class="text-xs text-[var(--muted)] mb-6 blink-cursor" id="processing-status">Initializing AI nodes</p>
+                        <div class="max-w-md mx-auto">
+                            <div class="bg-[var(--bg)] rounded-full h-2 overflow-hidden mb-2">
+                                <div id="progress-bar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
+                            </div>
+                            <p class="text-xs font-bold text-[var(--primary)]"><span id="progress-percent">0</span>%</p>
+                        </div>
+                    </div>
+
+                    <div id="result-screen" class="hidden fade-in">
+                        <div class="glass rounded-2xl p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold flex items-center">
+                                    <i class="fas fa-check-circle text-[var(--primary)] mr-2"></i> Render Selesai
+                                </h3>
+                                <button id="download-btn" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold">
+                                    <span><i class="fas fa-download mr-1"></i>Download</span>
+                                </button>
+                            </div>
+                            <div class="bg-black rounded-xl overflow-hidden relative aspect-video">
+                                <video id="result-video" controls class="w-full h-full"></video>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section id="history" class="py-12">
+            <h3 class="text-xl font-bold mb-6">Riwayat Render</h3>
+            <div id="history-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            <div id="history-empty" class="text-center py-12 text-[var(--muted)] text-sm">
+                <i class="fas fa-film text-3xl mb-3 block"></i>
+                Belum ada video yang dibuat.
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-overlay">
+        <div class="glass rounded-2xl p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Pengaturan AI Provider</h3>
+                <button id="close-settings-btn" class="text-[var(--muted)] hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-[var(--muted)] mb-6">
+                Masukkan API Key (misal dari Replicate) untuk menggunakan model AI Video asli (seperti Grok/Sora). Jika kosong, aplikasi akan memakai Internal Engine bawaan.
+            </p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-[var(--muted)]">Provider AI</label>
+                    <select id="provider-select" class="w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:border-[var(--primary)]">
+                        <option value="replicate">Replicate (Stable Video Diffusion)</option>
+                        <option value="stability">Stability AI</option>
+                        <option value="internal">Internal Engine (Gratis)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-[var(--muted)]">API Key</label>
+                    <input type="password" id="api-key-input" placeholder="r8_xxxxxx" class="w-full mt-2 bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none focus:border-[var(--primary)]">
+                </div>
+                <button id="save-settings-btn" class="btn-primary w-full px-6 py-3 rounded-xl text-sm font-bold">
+                    <span><i class="fas fa-save mr-2"></i>Simpan Konfigurasi</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-20 right-4 z-[100] space-y-2"></div>
+    <canvas id="render-canvas"></canvas>
+
+    <script>
+        let currentImage = null;
+        let currentSettings = { duration: 5, ratio: '16:9', motion: 70 };
+        let history = [];
+        
+        // Load Config dari LocalStorage
+        let aiConfig = JSON.parse(localStorage.getItem('ai_config') || '{"provider":"internal","apiKey":""}');
+        document.getElementById('provider-select').value = aiConfig.provider;
+        document.getElementById('api-key-input').value = aiConfig.apiKey;
+
+        function showToast(msg, type='info') {
+            const c = { success: 'border-[var(--primary)] text-[var(--primary)]', error: 'border-red-400 text-red-400' };
+            const t = document.createElement('div');
+            t.className = `toast glass px-4 py-3 rounded-xl border ${c[type]} text-sm`;
+            t.innerHTML = `<i class="fas fa-${type==='success'?'check':'times'}-circle mr-2"></i>${msg}`;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // Upload Handling
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const removeBtn = document.getElementById('remove-image-btn');
+
+        uploadZone.addEventListener('click', (e) => {
+            if (e.target.closest('#remove-image-btn')) return;
+            fileInput.click();
+        });
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault(); uploadZone.classList.remove('dragging');
+            if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', e => { if(e.target.files.length) handleFile(e.target.files[0]); });
+
+        function handleFile(file) {
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return showToast('Format tidak didukung', 'error');
+            if (file.size > 10*1024*1024) return showToast('File terlalu besar (Max 10MB)', 'error');
+            
+            const reader = new FileReader();
+            reader.onload = e => {
+                currentImage = new Image();
+                currentImage.src = e.target.result;
+                currentImage.onload = () => {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                    removeBtn.classList.remove('hidden');
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentImage = null; fileInput.value = '';
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+            document.getElementById('image-preview-container').classList.add('hidden');
+            removeBtn.classList.add('hidden');
+        });
+
+        // Settings UI
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const g = card.dataset.group;
+                document.querySelectorAll(`.option-card[data-group="${g}"]`).forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                currentSettings[g] = card.dataset.value;
+            });
+        });
+
+        document.getElementById('motion-slider').addEventListener('input', e => {
+            currentSettings.motion = e.target.value;
+            document.getElementById('motion-val').innerText = e.target.value;
+        });
+
+        document.querySelectorAll('.quick-prompt').forEach(b => {
+            b.addEventListener('click', () => document.getElementById('prompt-input').value = b.dataset.prompt);
+        });
+
+        // Modal Settings
+        const settingsModal = document.getElementById('settings-modal');
+        document.getElementById('open-settings-btn').addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
+        });
+        document.getElementById('close-settings-btn').addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+        });
+        document.getElementById('save-settings-btn').addEventListener('click', () => {
+            aiConfig = {
+                provider: document.getElementById('provider-select').value,
+                apiKey: document.getElementById('api-key-input').value
+            };
+            localStorage.setItem('ai_config', JSON.stringify(aiConfig));
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+            showToast('Pengaturan AI disimpan!', 'success');
+        });
+
+        // Generate Logic
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            if(!currentImage) return showToast('Upload gambar dulu', 'error');
+            
+            document.getElementById('output-section').classList.remove('hidden');
+            document.getElementById('processing-screen').classList.remove('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('output-section').scrollIntoView({behavior:'smooth', block:'center'});
+
+            // Cek apakah API Key diisi
+            if(aiConfig.provider !== 'internal' && aiConfig.apiKey) {
+                simulateAPICall(); // Simulasi panggilan server AI
+            } else {
+                startInternalRender(); // Engine bawaan
+            }
+        });
+
+        function simulateAPICall() {
+            let p = 0;
+            const stages = [
+                "Uploading image to AI server...",
+                "Running Stable Video Diffusion...",
+                "Generating realistic motion...",
+                "Synthesizing video output..."
+            ];
+            const interval = setInterval(() => {
+                p += Math.random() * 15;
+                if(p >= 100) {
+                    p = 100;
+                    clearInterval(interval);
+                    // Pada implementasi nyata, URL ini akan diganti dengan URL video dari server AI
+                    finalizeVideo('https://test-videos.co.uk/vids/bigbuckbunny/mp4-720-5mb.mp4'); 
+                } else {
+                    document.getElementById('progress-bar').style.width = `${p}%`;
+                    document.getElementById('progress-percent').innerText = Math.floor(p);
+                    document.getElementById('processing-status').innerText = stages[Math.floor(p/25)] || stages[0];
+                }
+            }, 500);
+        }
+
+        function startInternalRender() {
+            const canvas = document.getElementById('render-canvas');
+            const ctx = canvas.getContext('2d');
+            const fps = 30;
+            const totalFrames = fps * currentSettings.duration;
+            
+            if(currentSettings.ratio === '16:9') { canvas.width = 1280; canvas.height = 720; }
+            else if(currentSettings.ratio === '9:16') { canvas.width = 720; canvas.height = 1280; }
+            else { canvas.width = 720; canvas.height = 720; }
+
+            const stream = canvas.captureStream(fps);
+            const recorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
+            const chunks = [];
+            
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => finalizeVideo(URL.createObjectURL(new Blob(chunks, {type:'video/webm'})));
+
+            const prompt = document.getElementById('prompt-input').value.toLowerCase();
+            let motionType = 'zoom';
+            if (prompt.includes('jalan') || prompt.includes('berjalan') || prompt.includes('walking')) motionType = 'walk';
+            else if (prompt.includes('angin') || prompt.includes('tiup') || prompt.includes('wind')) motionType = 'wind';
+            else if (prompt.includes('putar') || prompt.includes('orbit') || prompt.includes('360')) motionType = 'orbit';
+
+            let frame = 0;
+            recorder.start();
+
+            function draw() {
+                if(frame >= totalFrames) return recorder.stop();
+                
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const t = frame / totalFrames;
+                const m = currentSettings.motion / 100;
+                let scale = 1, x = 0, y = 0, rot = 0, blur = 0;
+
+                if (motionType === 'walk') {
+                    scale = 1 + (m * t * 0.15);
+                    y = Math.sin(t * Math.PI * 8 * m) * 15 * m; 
+                    x = Math.sin(t * Math.PI * 4 * m) * 5 * m; 
+                    blur = Math.abs(Math.sin(t * Math.PI * 8 * m)) * 2 * m;
+                } else if (motionType === 'wind') {
+                    scale = 1 + (m * 0.05);
+                    x = Math.sin(t * Math.PI * 6 * m) * 20 * m;
+                    rot = Math.sin(t * Math.PI * 6 * m) * 0.02 * m;
+                } else if (motionType === 'orbit') {
+                    scale = 1 + (m * 0.2);
+                    rot = t * Math.PI * 2 * m;
+                } else {
+                    scale = 1 + (m * t * 0.5);
+                }
+
+                ctx.save();
+                ctx.translate(canvas.width/2, canvas.height/2);
+                ctx.rotate(rot);
+                if (blur > 0) ctx.filter = `blur(${blur}px)`;
+                
+                const ir = currentImage.width / currentImage.height;
+                const cr = canvas.width / canvas.height;
+                let dw, dh;
+                if(ir > cr) { dh = canvas.height; dw = dh * ir; } else { dw = canvas.width; dh = dw / ir; }
+
+                ctx.scale(scale, scale);
+                ctx.translate(x, y);
+                ctx.drawImage(currentImage, -dw/2, -dh/2, dw, dh);
+                ctx.restore();
+
+                let percent = Math.floor((frame/totalFrames)*100);
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+                document.getElementById('progress-percent').innerText = percent;
+                
+                const statusText = motionType === 'walk' ? 'Simulating walking motion...' :
+                                   motionType === 'wind' ? 'Applying wind dynamics...' :
+                                   motionType === 'orbit' ? 'Rendering orbit camera...' : 'Zooming cinematic...';
+                document.getElementById('processing-status').innerText = `Frame ${frame}/${totalFrames}. ${statusText}`;
+
+                frame++;
+                setTimeout(draw, 1000/fps);
+            }
+            draw();
+        }
+
+        function finalizeVideo(url) {
+            document.getElementById('processing-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('result-video').src = url;
+
+            const tCanvas = document.createElement('canvas');
+            tCanvas.width = 160; tCanvas.height = 90;
+            tCanvas.getContext('2d').drawImage(currentImage, 0, 0, 160, 90);
+            
+            history.unshift({
+                id: Date.now(),
+                thumb: tCanvas.toDataURL('image/jpeg', 0.5),
+                url: url,
+                prompt: document.getElementById('prompt-input').value || 'No prompt',
+                date: new Date().toLocaleDateString('id-ID')
+            });
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const grid = document.getElementById('history-grid');
+            const empty = document.getElementById('history-empty');
+            if(history.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            grid.innerHTML = history.map(v => `
+                <div class="glass rounded-xl overflow-hidden group fade-in cursor-pointer" onclick="playVideo('${v.id}')">
+                    <div class="relative aspect-video bg-black">
+                        <img src="${v.thumb}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/50">
+                            <i class="fas fa-play text-[var(--primary)]"></i>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <p class="text-xs truncate">${v.prompt}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.playVideo = (id) => {
+            const v = history.find(x => x.id == id);
+            if(v) {
+                document.getElementById('output-section').classList.remove('hidden');
+                document.getElementById('processing-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                document.getElementById('result-video').src = v.url;
+                document.getElementById('output-section').scrollIntoView({behavior:'smooth'});
+            }
+        };
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = document.getElementById('result-video').src;
+            a.download = `ai_video_${Date.now()}.mp4`;
+            a.click();
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            currentImage = null; fileInput.value = '';
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+            document.getElementById('image-preview-container').classList.add('hidden');
+            removeBtn.classList.add('hidden');
+            document.getElementById('prompt-input').value = '';
+            document.getElementById('output-section').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
