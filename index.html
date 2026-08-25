@@ -1,521 +1,276 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI VIDEO STUDIO - Neural Motion Engine</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OPAL FREE AI LAB</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
-        :root {
-            --bg: #050508;
-            --card: #0F0F14;
-            --border: #1F1F28;
-            --primary: #00F5D4;
-            --secondary: #9B5DE5;
-            --accent: #F15BB5;
-            --text: #FFFFFF;
-            --muted: #6B6B75;
-        }
-        * { font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        h1, h2, h3, .display { font-family: 'Syne', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
-        
-        .glass { background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border); }
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;
-            background: radial-gradient(circle at 10% 10%, rgba(0, 245, 212, 0.05), transparent 40%),
-                        radial-gradient(circle at 90% 90%, rgba(155, 93, 229, 0.05), transparent 40%);
-        }
-        
-        .upload-wrapper { position: relative; }
-        .upload-zone { transition: all 0.3s ease; border: 2px dashed var(--border); background: var(--card); border-radius: 16px; }
-        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 245, 212, 0.02); }
-        .upload-zone.dragging { border-color: var(--primary); background: rgba(0, 245, 212, 0.05); }
-        .remove-btn { position: absolute; top: 12px; right: 12px; z-index: 10; background: rgba(255,0,0,0.7); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        
-        input[type="range"] { -webkit-appearance: none; appearance: none; height: 4px; background: var(--border); border-radius: 4px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
-            background: var(--primary); border-radius: 50%; cursor: pointer;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #050508; font-weight: 700; transition: all 0.3s ease; position: relative; overflow: hidden;
-        }
-        .btn-primary::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            transform: translateX(-100%); transition: transform 0.3s ease; z-index: 0;
-        }
-        .btn-primary:hover::before { transform: translateX(0%); }
-        .btn-primary span { position: relative; z-index: 1; }
-        
-        .progress-bar { background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent)); background-size: 200% 100%; animation: gradient 2s linear infinite; }
-        @keyframes gradient { 0% { background-position: 0% 0%; } 100% { background-position: -200% 0%; } }
-        
-        .option-card { cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--border); background: var(--card); }
-        .option-card:hover { border-color: var(--primary); }
-        .option-card.selected { border-color: var(--primary); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.1); }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        
-        .spin-slow { animation: spin 3s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 245, 212, 0.3); } 50% { box-shadow: 0 0 40px rgba(0, 245, 212, 0.6); } }
-        
-        .toast { animation: slideIn 0.3s ease-out, slideOut 0.3s ease-out 2.7s forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOut { to { transform: translateX(100%); opacity: 0; } }
-        
-        .blink-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: var(--primary); }
-        @keyframes blink { 50% { opacity: 0; } }
-        
-        #render-canvas { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        :root { --bg-primary: #08080c; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; }
+        * { box-sizing: border-box; }
+        body { background-color: var(--bg-primary); color: #ffffff; font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gradient-text { background: linear-gradient(to right, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .gradient-bg { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); }
+        .node-arrow::before { content: ''; display: block; width: 2px; height: 20px; background: rgba(255,255,255,0.2); margin: 0 auto; }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
-
-    <header class="glass sticky top-0 z-50 border-b border-[var(--border)]">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-                    <i class="fas fa-bolt text-[var(--bg)] text-sm"></i>
-                </div>
-                <h1 class="display text-lg font-bold tracking-wider">NEURA<span class="text-[var(--primary)]">AI</span></h1>
-            </div>
-            <div class="flex items-center space-x-6 text-sm text-[var(--muted)]">
-                <a href="#studio" class="hidden md:block hover:text-white transition">Studio</a>
-                <a href="#history" class="hidden md:block hover:text-white transition">History</a>
-            </div>
-        </nav>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        
-        <section class="py-10 md:py-12 text-center">
-            <h2 class="display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none mb-4 tracking-tight">
-                Ubah Foto Jadi<br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] via-[var(--secondary)] to-[var(--accent)]">Video Bergerak AI</span>
-            </h2>
-            <p class="text-[var(--muted)] max-w-xl mx-auto text-sm md:text-base mb-8">
-                Didukung oleh Neural Motion Engine. Gambar akan disimulasikan bergerak hidup sesuai prompt (berjalan, angin) langsung di perangkat Anda.
-            </p>
-        </section>
-
-        <section id="studio" class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
-            
-            <div class="lg:col-span-4 space-y-6">
-                <div class="glass rounded-2xl p-5">
-                    <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-[var(--muted)]">1. Sumber Gambar</h3>
-                    <div class="upload-wrapper">
-                        <button id="remove-image-btn" class="remove-btn hidden text-xs text-white">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div id="upload-zone" class="upload-zone p-6 text-center cursor-pointer">
-                            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" class="hidden">
-                            <div id="upload-placeholder">
-                                <i class="fas fa-cloud-arrow-up text-2xl text-[var(--primary)] mb-2 block"></i>
-                                <p class="text-sm font-medium">Klik atau Drag & Drop</p>
-                                <p class="text-xs text-[var(--muted)] mt-1">JPG, PNG, WEBP</p>
-                            </div>
-                            <div id="image-preview-container" class="hidden">
-                                <img id="image-preview" src="" alt="Preview" class="max-h-48 mx-auto rounded-lg object-contain">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass rounded-2xl p-5 space-y-4">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">2. Konfigurasi</h3>
-                    <div>
-                        <label class="text-xs text-[var(--muted)]">Durasi Video</label>
-                        <div class="grid grid-cols-3 gap-2 mt-2">
-                            <div class="option-card selected rounded-lg p-2 text-center" data-group="duration" data-value="5"><p class="text-xs font-bold">5s</p></div>
-                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="10"><p class="text-xs font-bold">10s</p></div>
-                            <div class="option-card rounded-lg p-2 text-center" data-group="duration" data-value="15"><p class="text-xs font-bold">15s</p></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-[var(--muted)]">Ratio</label>
-                        <div class="grid grid-cols-3 gap-2 mt-2">
-                            <div class="option-card selected rounded-lg p-2 text-center" data-group="ratio" data-value="16:9"><i class="fas fa-tv text-xs"></i><p class="text-[10px] mt-1">16:9</p></div>
-                            <div class="option-card rounded-lg p-2 text-center" data-group="ratio" data-value="9:16"><i class="fas fa-mobile-screen text-xs"></i><p class="text-[10px] mt-1">9:16</p></div>
-                            <div class="option-card rounded-lg p-2 text-center" data-group="ratio" data-value="1:1"><i class="fas fa-square text-xs"></i><p class="text-[10px] mt-1">1:1</p></div>
-                        </div>
-                    </div>
-                    <div class="pt-2">
-                        <div class="flex justify-between text-xs mb-2">
-                            <span class="text-[var(--muted)]">Motion Strength</span>
-                            <span class="text-[var(--primary)] font-bold" id="motion-val">80</span>
-                        </div>
-                        <input type="range" id="motion-slider" min="40" max="100" value="80" class="w-full">
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-8 space-y-6">
-                <div class="glass rounded-2xl p-5">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--muted)] mb-3">3. AI Motion Prompt</h3>
-                    <textarea id="prompt-input" rows="3" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4 text-sm focus:outline-none focus:border-[var(--primary)] resize-none" placeholder="Contoh: Orang berjalan ke depan, rambut tertiup angin."></textarea>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="orang berjalan mendekati kamera dengan cepat">Orang Berjalan</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="rambut dan pakaian tertiup angin kencang">Tertiup Angin</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="kamera berputar 360 derajat">Orbit 360</button>
-                        <button class="quick-prompt text-[10px] px-2 py-1 rounded-full bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition" data-prompt="zoom in cinematic dramatis">Cinematic Zoom</button>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <button id="generate-btn" class="btn-primary flex-1 px-8 py-4 rounded-xl text-sm font-bold uppercase tracking-widest pulse-glow">
-                        <span><i class="fas fa-play mr-2"></i>Generate Motion Video</span>
-                    </button>
-                    <button id="reset-btn" class="px-6 py-4 rounded-xl text-sm font-bold border border-[var(--border)] hover:border-red-400 hover:text-red-400 transition">
-                        <i class="fas fa-rotate-left"></i>
-                    </button>
-                </div>
-
-                <div id="output-section" class="hidden">
-                    <div id="processing-screen" class="glass rounded-2xl p-8 text-center hidden">
-                        <div class="w-20 h-20 mx-auto mb-6 relative">
-                            <div class="absolute inset-0 rounded-full border-4 border-[var(--border)]"></div>
-                            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-[var(--primary)] spin-slow"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-microchip text-[var(--primary)]"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-lg font-bold mb-2" id="processing-title">Neural Engine Processing...</h3>
-                        <p class="text-xs text-[var(--muted)] mb-6 blink-cursor" id="processing-status">Initializing</p>
-                        <div class="max-w-md mx-auto">
-                            <div class="bg-[var(--bg)] rounded-full h-2 overflow-hidden mb-2">
-                                <div id="progress-bar" class="progress-bar h-full rounded-full" style="width: 0%"></div>
-                            </div>
-                            <p class="text-xs font-bold text-[var(--primary)]"><span id="progress-percent">0</span>%</p>
-                        </div>
-                    </div>
-
-                    <div id="result-screen" class="hidden fade-in">
-                        <div class="glass rounded-2xl p-5">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-bold flex items-center">
-                                    <i class="fas fa-check-circle text-[var(--primary)] mr-2"></i> Render Selesai
-                                </h3>
-                                <button id="download-btn" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold">
-                                    <span><i class="fas fa-download mr-1"></i>Download</span>
-                                </button>
-                            </div>
-                            <div class="bg-black rounded-xl overflow-hidden relative aspect-video">
-                                <video id="result-video" controls class="w-full h-full"></video>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="history" class="py-12">
-            <h3 class="text-xl font-bold mb-6">Riwayat Render</h3>
-            <div id="history-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-            <div id="history-empty" class="text-center py-12 text-[var(--muted)] text-sm">
-                <i class="fas fa-film text-3xl mb-3 block"></i>
-                Belum ada video yang dibuat.
-            </div>
-        </section>
-    </main>
-
-    <div id="toast-container" class="fixed top-20 right-4 z-[100] space-y-2"></div>
-    <canvas id="render-canvas"></canvas>
+    <div id="root"></div>
 
     <script>
-        let currentImage = null;
-        let currentSettings = { duration: 5, ratio: '16:9', motion: 80 };
-        let history = [];
+        const { useState, useEffect } = React;
+        const h = React.createElement;
 
-        function showToast(msg, type='info') {
-            const c = { success: 'border-[var(--primary)] text-[var(--primary)]', error: 'border-red-400 text-red-400' };
-            const t = document.createElement('div');
-            t.className = `toast glass px-4 py-3 rounded-xl border ${c[type]} text-sm`;
-            t.innerHTML = `<i class="fas fa-${type==='success'?'check':'times'}-circle mr-2"></i>${msg}`;
-            document.getElementById('toast-container').appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+        const StorageService = {
+            getProjects: () => { try { return JSON.parse(localStorage.getItem('opal_projects')) || []; } catch (e) { return []; } },
+            saveProject: (project) => { const p = StorageService.getProjects(); const i = p.findIndex(x => x.id === project.id); if (i >= 0) p[i] = project; else p.push(project); localStorage.setItem('opal_projects', JSON.stringify(p)); },
+            deleteProject: (id) => { localStorage.setItem('opal_projects', JSON.stringify(StorageService.getProjects().filter(p => p.id !== id))); }
+        };
 
-        const uploadZone = document.getElementById('upload-zone');
-        const fileInput = document.getElementById('file-input');
-        const removeBtn = document.getElementById('remove-image-btn');
+        const extractJson = (text) => { try { const m = text.match(/\{[\s\S]*\}/); return JSON.parse(m ? m[0] : text); } catch (e) { throw new Error("Gagal membaca JSON AI."); } };
 
-        uploadZone.addEventListener('click', (e) => {
-            if (e.target.closest('#remove-image-btn')) return;
-            fileInput.click();
+        const generateFallbackWorkflow = (userPrompt) => ({
+            name: "Custom AI Workflow",
+            description: `Workflow untuk: ${userPrompt.substring(0, 50)}...`,
+            steps: [
+                { id: "s1", type: "FILE_UPLOAD", title: "Upload Media", prompt: "N/A", input: "File", output: "Media" },
+                { id: "s2", type: "IMAGE_ANALYSIS", title: "Analyze Media", prompt: "Analyze media", input: "Media", output: "Text" },
+                { id: "s3", type: "TEXT_GENERATION", title: "Generate Prompt", prompt: "Create prompt", input: "Text", output: "Prompt" },
+                { id: "s4", type: "IMAGE_TO_VIDEO", title: "Generate Video", prompt: "Generate video", input: "Prompt", output: "Video" },
+                { id: "s5", type: "FILE_OUTPUT", title: "Download Result", prompt: "N/A", input: "Video", output: "File" }
+            ]
         });
-        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragging'); });
-        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragging'));
-        uploadZone.addEventListener('drop', e => {
-            e.preventDefault(); uploadZone.classList.remove('dragging');
-            if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-        });
-        fileInput.addEventListener('change', e => { if(e.target.files.length) handleFile(e.target.files[0]); });
 
-        function handleFile(file) {
-            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return showToast('Format tidak didukung', 'error');
-            if (file.size > 15*1024*1024) return showToast('File terlalu besar (Max 15MB)', 'error');
+        const ApiService = {
+            callAI: async (prompt, apiKey, model) => {
+                if (!apiKey) throw new Error("API Key Gemini kosong.");
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error.message.includes('not found') ? `Model tidak ditemukan` : data.error.message);
+                    return data.candidates[0].content.parts[0].text;
+                } catch (err) { throw new Error(err.message); }
+            },
             
-            const reader = new FileReader();
-            reader.onload = e => {
-                currentImage = new Image();
-                currentImage.src = e.target.result;
-                currentImage.onload = () => {
-                    document.getElementById('image-preview').src = e.target.result;
-                    document.getElementById('upload-placeholder').classList.add('hidden');
-                    document.getElementById('image-preview-container').classList.remove('hidden');
-                    removeBtn.classList.remove('hidden');
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-
-        removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentImage = null; fileInput.value = '';
-            document.getElementById('upload-placeholder').classList.remove('hidden');
-            document.getElementById('image-preview-container').classList.add('hidden');
-            removeBtn.classList.add('hidden');
-        });
-
-        document.querySelectorAll('.option-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const g = card.dataset.group;
-                document.querySelectorAll(`.option-card[data-group="${g}"]`).forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                currentSettings[g] = card.dataset.value;
-            });
-        });
-
-        document.getElementById('motion-slider').addEventListener('input', e => {
-            currentSettings.motion = e.target.value;
-            document.getElementById('motion-val').innerText = e.target.value;
-        });
-
-        document.querySelectorAll('.quick-prompt').forEach(b => {
-            b.addEventListener('click', () => document.getElementById('prompt-input').value = b.dataset.prompt);
-        });
-
-        document.getElementById('generate-btn').addEventListener('click', () => {
-            if(!currentImage) return showToast('Upload gambar dulu', 'error');
-            
-            document.getElementById('output-section').classList.remove('hidden');
-            document.getElementById('processing-screen').classList.remove('hidden');
-            document.getElementById('result-screen').classList.add('hidden');
-            document.getElementById('output-section').scrollIntoView({behavior:'smooth', block:'center'});
-
-            startNeuralRender();
-        });
-
-        function updateStatus(text, percent) {
-            document.getElementById('processing-status').innerText = text;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
-            document.getElementById('progress-percent').innerText = Math.floor(percent);
-        }
-
-        // =================================================================
-        // NEURAL MOTION ENGINE v2 (100% Local Browser Execution)
-        // =================================================================
-        function startNeuralRender() {
-            const canvas = document.getElementById('render-canvas');
-            const ctx = canvas.getContext('2d');
-            const fps = 30;
-            const totalFrames = fps * currentSettings.duration;
-            
-            if(currentSettings.ratio === '16:9') { canvas.width = 1280; canvas.height = 720; }
-            else if(currentSettings.ratio === '9:16') { canvas.width = 720; canvas.height = 1280; }
-            else { canvas.width = 720; canvas.height = 720; }
-
-            const stream = canvas.captureStream(fps);
-            const recorder = new MediaRecorder(stream, {mimeType:'video/webm;codecs=vp9'});
-            const chunks = [];
-            
-            recorder.ondataavailable = e => chunks.push(e.data);
-            recorder.onstop = () => finalizeVideo(URL.createObjectURL(new Blob(chunks, {type:'video/webm'})));
-
-            const prompt = document.getElementById('prompt-input').value.toLowerCase();
-            let motionType = 'zoom';
-            if (prompt.includes('jalan') || prompt.includes('berjalan') || prompt.includes('walking')) motionType = 'walk';
-            else if (prompt.includes('angin') || prompt.includes('tiup') || prompt.includes('wind')) motionType = 'wind';
-            else if (prompt.includes('putar') || prompt.includes('orbit') || prompt.includes('360')) motionType = 'orbit';
-            else if (prompt.includes('air') || prompt.includes('gelombang')) motionType = 'water';
-
-            let frame = 0;
-            recorder.start();
-
-            function draw() {
-                if(frame >= totalFrames) return recorder.stop();
+            // INTEGRASI HUGGING FACE GRATIS
+            generateVideoHF: async (apiKey, mode, imageDataBase64, textPrompt) => {
+                if (!apiKey) throw new Error("Hugging Face Token kosong. Isi di Settings.");
                 
-                ctx.fillStyle = "#000";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                let url = "";
+                let body = null;
+                let headers = { "Authorization": `Bearer ${apiKey}` };
 
-                const t = frame / totalFrames; // Progress 0 -> 1
-                const m = currentSettings.motion / 100; // Strength 0 -> 1
+                if (mode === 'image-to-video') {
+                    url = "https://api-inference.huggingface.co/models/stabilityai/stable-video-diffusion-img2img-xt";
+                    const byteChars = atob(imageDataBase64.split(',')[1]);
+                    const byteArrays = new Uint8Array(byteChars.length);
+                    for (let i = 0; i < byteChars.length; i++) byteArrays[i] = byteChars.charCodeAt(i);
+                    body = new Blob([byteArrays], { type: "image/png" });
+                } else {
+                    url = "https://api-inference.huggingface.co/models/cerspense/zeroscope_v2_576w";
+                    headers["Content-Type"] = "application/json";
+                    body = JSON.stringify({ inputs: textPrompt });
+                }
+
+                const res = await fetch(url, { method: 'POST', headers, body });
                 
-                const iw = currentImage.width;
-                const ih = currentImage.height;
-                const ir = iw / ih;
-                const cr = canvas.width / canvas.height;
-                let dw, dh;
-                if(ir > cr) { dh = canvas.height; dw = dh * ir; } else { dw = canvas.width; dh = dw / ir; }
-
-                // ALGORITMA DISTORSI MULTI-SLICE
-                if (motionType === 'wind') {
-                    // Memotong gambar horizontal dan membuat gelombang
-                    const slices = 30;
-                    const sliceH = dh / slices;
-                    ctx.save();
-                    ctx.translate(canvas.width/2, canvas.height/2);
-                    for(let i=0; i<slices; i++) {
-                        const wave = Math.sin(t * Math.PI * 8 * m + (i / slices) * 3) * 40 * m;
-                        const stretch = 1 + Math.sin(t * Math.PI * 6 * m + (i / slices) * 2) * 0.05 * m;
-                        ctx.drawImage(currentImage, 
-                            0, (ih/slices) * i, iw, ih/slices, 
-                            -dw/2 + wave, -dh/2 + (i * sliceH), dw * stretch, sliceH + 1
-                        );
-                    }
-                    ctx.restore();
-                } 
-                else if (motionType === 'walk') {
-                    // Simulasi langkah dengan distorsi vertikal dan bobbing
-                    const slices = 15;
-                    const sliceW = dw / slices;
-                    ctx.save();
-                    ctx.translate(canvas.width/2, canvas.height/2);
-                    const yBob = Math.sin(t * Math.PI * 8 * m) * 20 * m; // Naik turun
-                    ctx.translate(0, yBob);
-                    
-                    for(let i=0; i<slices; i++) {
-                        let wave = 0;
-                        if (i > slices / 2) { // Kaki bagian bawah bergerak lebih kuat
-                            wave = Math.sin(t * Math.PI * 6 * m + (i / slices) * 2) * 30 * m;
-                        }
-                        ctx.drawImage(currentImage, 
-                            (iw/slices) * i, 0, iw/slices, ih, 
-                            -dw/2 + (i * sliceW) + wave, -dh/2, sliceW + 1, dh
-                        );
-                    }
-                    ctx.restore();
-                }
-                else if (motionType === 'water') {
-                    // Gelombang vertikal (seperti air)
-                    const slices = 20;
-                    const sliceW = dw / slices;
-                    ctx.save();
-                    ctx.translate(canvas.width/2, canvas.height/2);
-                    for(let i=0; i<slices; i++) {
-                        const wave = Math.sin(t * Math.PI * 4 * m + (i / slices) * 4) * 25 * m;
-                        ctx.drawImage(currentImage, 
-                            (iw/slices) * i, 0, iw/slices, ih, 
-                            -dw/2 + (i * sliceW), -dh/2 + wave, sliceW + 1, dh
-                        );
-                    }
-                    ctx.restore();
-                }
-                else {
-                    // Cinematic Zoom + Pan
-                    let scale = 1 + (m * t * 0.6);
-                    let x = Math.sin(t * Math.PI * 2) * 30 * m;
-                    let y = Math.cos(t * Math.PI * 2) * 15 * m;
-
-                    ctx.save();
-                    ctx.translate(canvas.width/2, canvas.height/2);
-                    if (motionType === 'orbit') {
-                        ctx.rotate(t * Math.PI * 2 * m);
-                    }
-                    ctx.scale(scale, scale);
-                    ctx.translate(x, y);
-                    ctx.drawImage(currentImage, -dw/2, -dh/2, dw, dh);
-                    ctx.restore();
-                }
-
-                let percent = Math.floor((frame/totalFrames)*100);
-                updateStatus(`Rendering motion frame ${frame}/${totalFrames}...`, percent);
-
-                frame++;
-                setTimeout(draw, 1000/fps);
-            }
-            draw();
-        }
-
-        function finalizeVideo(url) {
-            updateStatus("Selesai", 100);
-            document.getElementById('processing-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('result-video').src = url;
-
-            const tCanvas = document.createElement('canvas');
-            tCanvas.width = 160; tCanvas.height = 90;
-            tCanvas.getContext('2d').drawImage(currentImage, 0, 0, 160, 90);
-            
-            history.unshift({
-                id: Date.now(),
-                thumb: tCanvas.toDataURL('image/jpeg', 0.5),
-                url: url,
-                prompt: document.getElementById('prompt-input').value || 'No prompt',
-                date: new Date().toLocaleDateString('id-ID')
-            });
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const grid = document.getElementById('history-grid');
-            const empty = document.getElementById('history-empty');
-            if(history.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-            grid.innerHTML = history.map(v => `
-                <div class="glass rounded-xl overflow-hidden group fade-in cursor-pointer" onclick="playVideo('${v.id}')">
-                    <div class="relative aspect-video bg-black">
-                        <img src="${v.thumb}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition">
-                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/50">
-                            <i class="fas fa-play text-[var(--primary)]"></i>
-                        </div>
-                    </div>
-                    <div class="p-2">
-                        <p class="text-xs truncate">${v.prompt}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.playVideo = (id) => {
-            const v = history.find(x => x.id == id);
-            if(v) {
-                document.getElementById('output-section').classList.remove('hidden');
-                document.getElementById('processing-screen').classList.add('hidden');
-                document.getElementById('result-screen').classList.remove('hidden');
-                document.getElementById('result-video').src = v.url;
-                document.getElementById('output-section').scrollIntoView({behavior:'smooth'});
+                if (res.status === 503) throw new Error("Model sedang loading (gratis). Tunggu 20 detik lalu coba lagi.");
+                if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Gagal generate video."); }
+                
+                const blob = await res.blob();
+                return URL.createObjectURL(blob);
             }
         };
 
-        document.getElementById('download-btn').addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = document.getElementById('result-video').src;
-            a.download = `ai_video_${Date.now()}.webm`;
-            a.click();
-        });
+        const Icon = ({ name, className = "w-4 h-4" }) => { useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, []); return h('i', { 'data-lucide': name, className }); };
 
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            currentImage = null; fileInput.value = '';
-            document.getElementById('upload-placeholder').classList.remove('hidden');
-            document.getElementById('image-preview-container').classList.add('hidden');
-            removeBtn.classList.add('hidden');
-            document.getElementById('prompt-input').value = '';
-            document.getElementById('output-section').classList.add('hidden');
-        });
+        const Toast = ({ message, type, onClose }) => {
+            useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, []);
+            return h('div', { className: `fixed bottom-20 right-6 z-50 px-6 py-3 rounded-xl glass-card flex items-center gap-3 border-l-4 ${type === 'success' ? 'border-green-500' : 'border-red-500'}` },
+                h(Icon, { name: type === 'success' ? 'check-circle' : 'alert-circle', className: "w-5 h-5" }), h('span', { className: "text-sm" }, message)
+            );
+        };
+
+        const Sidebar = ({ currentPage, setPage }) => {
+            const menus = [
+                { id: 'dashboard', name: 'Dashboard', icon: 'layout-dashboard' }, { id: 'create', name: 'Create App', icon: 'plus-circle' },
+                { id: 'apps', name: 'My Apps', icon: 'grid' }, { id: 'prompt', name: 'Prompt Studio', icon: 'sparkles' },
+                { id: 'image', name: 'Image AI', icon: 'image' }, { id: 'video', name: 'Video AI', icon: 'video' },
+                { id: 'history', name: 'History', icon: 'history' }, { id: 'settings', name: 'Settings', icon: 'settings' }
+            ];
+            return h('aside', { className: "w-64 h-screen bg-black/40 border-r border-white/5 flex-col p-4 hidden md:flex" },
+                h('div', { className: "flex items-center gap-2 mb-10 px-2" }, h('div', { className: "w-8 h-8 rounded-lg gradient-bg flex items-center justify-center" }, h(Icon, { name: "gem", className: "w-5 h-5" })), h('div', null, h('h1', { className: "text-sm font-bold" }, "OPAL FREE AI"), h('p', { className: "text-xs text-gray-500" }, "LAB"))),
+                h('nav', { className: "flex flex-col gap-1 flex-1" }, menus.map(m => h('button', { key: m.id, onClick: () => setPage(m.id), className: `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm ${currentPage === m.id ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5'}` }, h(Icon, { name: m.icon, className: "w-4 h-4" }), m.name))),
+                h('div', { className: "glass-card p-3 rounded-xl text-xs text-center" }, h('p', { className: "text-blue-400 font-bold" }, "FREE MODE ACTIVE"))
+            );
+        };
+
+        const Header = ({ setPage, hasApiKey, goToSettings }) => 
+            h('header', { className: "h-16 border-b border-white/5 bg-black/20 flex items-center justify-between px-6" },
+                h('div', { className: "flex items-center gap-4 flex-1 max-w-md" }, h(Icon, { name: "search", className: "w-4 h-4 absolute left-3 text-gray-500" }), h('input', { type: "text", placeholder: "Search...", className: "w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm outline-none" })),
+                h('div', { className: "flex items-center gap-3" }, !hasApiKey && h('button', { onClick: goToSettings, className: "text-yellow-400 text-xs bg-yellow-400/10 px-3 py-1.5 rounded-lg border border-yellow-400/20" }, "API Key Required"), h('button', { onClick: () => setPage('create'), className: "gradient-bg px-4 py-2 rounded-lg text-sm font-medium" }, " New App"))
+            );
+
+        const Dashboard = ({ setPage, projects }) => 
+            h('div', { className: "p-8" }, h('h2', { className: "text-3xl font-bold mb-1" }, "Dashboard"), h('p', { className: "text-gray-400 mb-8" }, "Create AI Apps. Build Workflows. Run AI."),
+                h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" }, ['Total Apps', 'Total Workflows', 'Generations'].map((s, i) => h('div', { key: s, className: "glass-card rounded-2xl p-6" }, h('p', { className: "text-gray-400 text-sm" }, s), h('p', { className: "text-4xl font-bold mt-1" }, i === 0 ? projects.length : 0)))),
+                h('div', { className: "glass-card border border-dashed border-white/10 rounded-2xl p-16 text-center" }, h('h4', { className: "text-lg font-medium mb-2" }, "Belum ada aplikasi AI."), h('button', { onClick: () => setPage('create'), className: "gradient-bg px-6 py-2.5 rounded-lg font-medium mt-4" }, "CREATE YOUR FIRST AI APP"))
+            );
+
+        const CreateApp = ({ setPage, addToast, hasApiKey }) => {
+            const [prompt, setPrompt] = useState(''); const [loading, setLoading] = useState(false); const [workflow, setWorkflow] = useState(null);
+            const handleGenerate = async () => {
+                if (!prompt || !hasApiKey) return;
+                setLoading(true);
+                try {
+                    const systemPrompt = `Convert to JSON: {"name":"App","description":"Desc","steps":[{"id":"s1","type":"FILE_UPLOAD","title":"Upload","prompt":"N/A","input":"File","output":"File"}]}. Types: FILE_UPLOAD, IMAGE_ANALYSIS, TEXT_GENERATION, IMAGE_TO_VIDEO. Request: ${prompt}`;
+                    const resText = await ApiService.callAI(systemPrompt, localStorage.getItem('opal_dev_key'), localStorage.getItem('opal_model') || 'gemini-1.5-flash-latest');
+                    setWorkflow(extractJson(resText)); addToast('Workflow dibuat!', 'success');
+                } catch { setWorkflow(generateFallbackWorkflow(prompt)); addToast('Fallback digunakan', 'success'); }
+                setLoading(false);
+            };
+            const handleSave = () => { const p = { id: Date.now().toString(), name: workflow.name, description: workflow.description, prompt, workflow, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; StorageService.saveProject(p); addToast('Tersimpan!', 'success'); setPage('apps'); };
+
+            return h('div', { className: "p-8 max-w-5xl mx-auto" },
+                h('h2', { className: "text-4xl font-bold mb-2 gradient-text" }, "Create AI App"),
+                h('div', { className: "glass-card rounded-2xl p-6 my-8" }, h('textarea', { className: "w-full bg-transparent border-none outline-none resize-none text-white placeholder-gray-600 mb-4 text-lg", rows: 4, placeholder: "Contoh: Buat video promosi jersey dari gambar.", value: prompt, onChange: e => setPrompt(e.target.value) }), h('button', { onClick: handleGenerate, disabled: loading, className: "gradient-bg px-8 py-3 rounded-lg font-medium flex items-center gap-2" }, loading ? h(Icon, { name: "loader-2", className: "w-4 h-4 animate-spin" }) : h(Icon, { name: "sparkles", className: "w-4 h-4" }), "GENERATE WORKFLOW")),
+                workflow && h('div', { className: "glass-card rounded-2xl p-8" }, h('h3', { className: "text-2xl font-bold text-blue-400 mb-1" }, workflow.name), h('button', { onClick: handleSave, className: "bg-white/10 px-4 py-2 rounded-lg text-sm mt-4" }, "Save Project"))
+            );
+        };
+
+        const MyApps = ({ setPage, projects, setProjects }) => h('div', { className: "p-8" }, h('h2', { className: "text-3xl font-bold mb-6" }, "My Apps"), projects.length === 0 ? h('div', { className: "glass-card p-16 text-center rounded-2xl" }, h('button', { onClick: () => setPage('create'), className: "gradient-bg px-6 py-2.5 rounded-lg" }, "CREATE WORKFLOW")) : h('div', { className: "grid grid-cols-3 gap-6" }, projects.map(p => h('div', { key: p.id, className: "glass-card rounded-2xl p-5" }, h('h4', { className: "font-bold text-lg mb-1" }, p.name), h('button', { onClick: () => { StorageService.deleteProject(p.id); setProjects(StorageService.getProjects()); }, className: "bg-red-500/10 text-red-400 p-2 rounded-lg text-xs mt-4" }, "Delete")))));
+
+        const ImageAI = () => h('div', { className: "p-8" }, h('h2', { className: "text-3xl font-bold mb-6" }, "Image AI"), h('div', { className: "glass-card p-6 rounded-2xl border-l-4 border-yellow-500" }, "Free Tier Limitation"));
+
+        const VideoAI = ({ addToast }) => {
+            const [mode, setMode] = useState('image-to-video');
+            const [imageData, setImageData] = useState(null);
+            const [prompt, setPrompt] = useState("");
+            const [loading, setLoading] = useState(false);
+            const [videoUrl, setVideoUrl] = useState(null);
+            const [error, setError] = useState("");
+
+            const handleFile = (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => setImageData(ev.target.result); r.readAsDataURL(f); };
+
+            const handleGenerate = async () => {
+                if (mode === 'image-to-video' && !imageData) return setError("Upload gambar dulu.");
+                if (mode === 'text-to-video' && !prompt) return setError("Masukkan prompt dulu.");
+                
+                setLoading(true); setError(""); setVideoUrl(null);
+                try {
+                    const hfToken = localStorage.getItem('opal_hf_token');
+                    const resultUrl = await ApiService.generateVideoHF(hfToken, mode, imageData, prompt);
+                    setVideoUrl(resultUrl);
+                    addToast("Video berhasil dibuat!", "success");
+                } catch (err) { setError(err.message); addToast("Gagal generate", "error"); }
+                setLoading(false);
+            };
+
+            return h('div', { className: "p-8" },
+                h('h2', { className: "text-3xl font-bold mb-6" }, "Video AI Studio (FREE via HuggingFace)"),
+                h('div', { className: "glass-card rounded-2xl p-4 mb-6 border-l-4 border-green-500" }, h('p', { className: "text-sm" }, "Menggunakan model Open Source: Stable Video Diffusion & Zeroscope. Gratis tanpa limit membayar.")),
+                h('div', { className: "grid grid-cols-1 lg:grid-cols-2 gap-8" },
+                    h('div', { className: "glass-card rounded-2xl p-6" },
+                        h('div', { className: "flex gap-2 mb-4" }, 
+                            h('button', { onClick: () => setMode('image-to-video'), className: `flex-1 py-2 rounded-lg text-sm ${mode === 'image-to-video' ? 'bg-blue-600' : 'bg-white/5'}` }, "Image to Video"),
+                            h('button', { onClick: () => setMode('text-to-video'), className: `flex-1 py-2 rounded-lg text-sm ${mode === 'text-to-video' ? 'bg-blue-600' : 'bg-white/5'}` }, "Text to Video")
+                        ),
+                        mode === 'image-to-video' ? 
+                            h('div', { className: "border-2 border-dashed border-white/10 rounded-lg p-4 mb-4 text-center" }, h('input', { type: "file", accept: "image/*", onChange: handleFile, className: "hidden", id: "v-up" }), h('label', { htmlFor: "v-up", className: "cursor-pointer" }, imageData ? h('img', { src: imageData, className: "max-h-32 mx-auto" }) : "Klik upload gambar")) 
+                            : h('textarea', { className: "w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm mb-4", rows: 4, placeholder: "Astronot berkuda di mars...", value: prompt, onChange: e => setPrompt(e.target.value) }),
+                        h('button', { onClick: handleGenerate, disabled: loading, className: "w-full gradient-bg py-3 rounded-lg font-medium flex items-center justify-center gap-2" }, loading ? h(Icon, { name: "loader-2", className: "w-4 h-4 animate-spin" }) : h(Icon, { name: "video", className: "w-4 h-4" }), "GENERATE VIDEO (FREE)")
+                    ),
+                    h('div', { className: "glass-card rounded-2xl p-6 flex items-center justify-center min-h-[300px]" },
+                        error ? h('div', { className: "text-red-400 text-center" }, error) :
+                        videoUrl ? h('video', { src: videoUrl, controls: true, className: "w-full rounded-lg" }) :
+                        loading ? h('div', { className: "text-center" }, h(Icon, { name: "loader-2", className: "w-12 h-12 mx-auto mb-2 animate-spin text-blue-500" }), "Rendering... (Bisa memakan 30 detik)") :
+                        h('div', { className: "text-center text-gray-500" }, "Hasil video akan muncul di sini")
+                    )
+                )
+            );
+        };
+
+        const PromptStudio = ({ addToast, hasApiKey }) => h('div', { className: "p-8" }, h('h2', { className: "text-3xl font-bold mb-6" }, "Prompt Studio"), h('div', { className: "glass-card p-6 rounded-2xl" }, "Fitur Prompt Studio"));
+        const History = () => h('div', { className: "p-8" }, h('h2', { className: "text-3xl font-bold mb-6" }, "History"), h('div', { className: "glass-card p-8 text-center rounded-2xl" }, "Belum ada riwayat."));
+
+        const Settings = ({ addToast, updateApiKeyState }) => {
+            const [geminiKey, setGeminiKey] = useState(localStorage.getItem('opal_dev_key') || '');
+            const [model, setModel] = useState(localStorage.getItem('opal_model') || 'gemini-1.5-flash-latest');
+            const [hfToken, setHfToken] = useState(localStorage.getItem('opal_hf_token') || '');
+
+            const save = () => {
+                localStorage.setItem('opal_dev_key', geminiKey);
+                localStorage.setItem('opal_model', model);
+                localStorage.setItem('opal_hf_token', hfToken);
+                updateApiKeyState(!!geminiKey);
+                addToast('Settings disimpan!', 'success');
+            };
+
+            return h('div', { className: "p-8 max-w-3xl" },
+                h('h2', { className: "text-3xl font-bold mb-6" }, "Settings"),
+                h('div', { className: "glass-card rounded-2xl p-6 mb-6" },
+                    h('h3', { className: "font-bold mb-4" }, "Gemini AI Config (Text/Analyze)"),
+                    h('input', { type: "password", className: "w-full bg-white/5 border border-white/10 rounded-lg p-3 mb-4 text-sm", placeholder: "Gemini API Key", value: geminiKey, onChange: e => setGeminiKey(e.target.value) }),
+                    h('input', { type: "text", className: "w-full bg-white/5 border border-white/10 rounded-lg p-3 mb-4 text-sm", placeholder: "Model (gemini-1.5-flash-latest)", value: model, onChange: e => setModel(e.target.value) })
+                ),
+                h('div', { className: "glass-card rounded-2xl p-6 mb-6 border-l-4 border-green-500" },
+                    h('h3', { className: "font-bold mb-4" }, "Hugging Face Token (Video AI Gratis)"),
+                    h('p', { className: "text-xs text-gray-400 mb-4" }, "Dapatkan token gratis di huggingface.co/settings/tokens"),
+                    h('input', { type: "password", className: "w-full bg-white/5 border border-white/10 rounded-lg p-3 mb-4 text-sm", placeholder: "hf_xxxxxxxx", value: hfToken, onChange: e => setHfToken(e.target.value) })
+                ),
+                h('button', { onClick: save, className: "bg-blue-600 px-4 py-2 rounded-lg text-sm" }, "Save Settings")
+            );
+        };
+
+        const App = () => {
+            const [page, setPage] = useState('dashboard');
+            const [projects, setProjects] = useState([]);
+            const [toast, setToast] = useState(null);
+            const [hasApiKey, setHasApiKey] = useState(false);
+
+            useEffect(() => { setProjects(StorageService.getProjects()); setHasApiKey(!!localStorage.getItem('opal_dev_key')); if (window.lucide) window.lucide.createIcons(); }, []);
+            const addToast = (m, t) => setToast({ message: m, type: t });
+
+            const render = () => {
+                switch(page) {
+                    case 'dashboard': return h(Dashboard, { setPage, projects });
+                    case 'create': return h(CreateApp, { setPage, addToast, hasApiKey });
+                    case 'apps': return h(MyApps, { setPage, projects, setProjects });
+                    case 'video': return h(VideoAI, { addToast });
+                    case 'settings': return h(Settings, { addToast, updateApiKeyState: setHasApiKey });
+                    default: return h(Dashboard, { setPage, projects });
+                }
+            };
+
+            return h('div', { className: "flex h-screen bg-[#08080c] text-white" },
+                h(Sidebar, { currentPage: page, setPage }),
+                h('main', { className: "flex-1 overflow-y-auto h-screen" },
+                    h(Header, { setPage, hasApiKey, goToSettings: () => setPage('settings') }),
+                    h('div', { className: "pb-20" }, render())
+                ),
+                toast && h(Toast, { ...toast, onClose: () => setToast(null) }),
+                h('nav', { className: "fixed bottom-0 left-0 right-0 bg-black/80 border-t border-white/10 flex justify-around p-2 md:hidden" }, ['dashboard', 'create', 'apps', 'settings'].map(p => h('button', { key: p, onClick: () => setPage(p), className: `p-2 ${page === p ? 'text-blue-400' : 'text-gray-500'}` }, h(Icon, { name: p, className: "w-6 h-6" }))))
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(h(App));
     </script>
 </body>
 </html>
